@@ -1,5 +1,6 @@
 import flet as ft
-# from utils import find_duplicate_files, delete_file
+from pathlib import Path
+from modules.ffmpeg_processing import process_video, load_video_info
 
 
 def main(page: ft.Page):
@@ -22,6 +23,8 @@ def main(page: ft.Page):
     )
 
     # Variables de estado
+    ffmpeg_path = Path("ffmpeg/bin/ffmpeg.exe")
+
     state = { "current_duplicates": [] }
 
     selected_file_text = ft.Text("No file selected", size=20, color=ft.Colors.BLUE_200)
@@ -102,7 +105,15 @@ def main(page: ft.Page):
 
     def handle_file_picker(e: ft.FilePickerResultEvent):
         if e.files:
-            selected_file_text.value = f"Selected file: {e.files[0].path}"
+            # Get video information
+            video_info = load_video_info(
+                ffmpeg_path=ffmpeg_path,
+                source=e.files[0].path )
+
+
+
+
+            selected_file_text.value = f"Selected file: {video_info.source_name}"
             selected_file_text.update()
 
             bitrate_input.disabled = False
@@ -194,7 +205,36 @@ def main(page: ft.Page):
         delete_all_button.update()
 
     def process_video():
-        pass
+        # Build output path
+        output_path = Path(config.source).with_stem(f"{Path(config.source).stem}_FFMPEG_EDITED.mp4")
+        
+        # Build FFmpeg command
+        cmd = [
+            str(ffmpeg_path),
+            "-hwaccel", "cuda",
+            "-y",
+            "-an",
+            "-i", config.source,
+            "-c:v", "h264_nvenc"
+        ]
+
+        # Video encoding options
+        options = {
+            "bitrate": ["-b:v", f"{config.bitrate}M"],
+            "resolution": ["-vf", f"scale={config.resolution}"],
+            "fps": ["-r", f"{config.fps}"]
+        }
+
+        for key, args in options.items():
+            if getattr(config, key):
+                cmd.extend(args)
+
+        cmd.append(f"{output_path}")
+        
+        # Launch process
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        
+        return process
 
 
 
