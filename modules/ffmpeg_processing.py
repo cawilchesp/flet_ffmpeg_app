@@ -6,9 +6,6 @@ from rich.live import Live
 from rich import print, box
 from rich.table import Table, Column
 
-# Local modules
-from modules.process_config import ProcessConfig
-
 
 @dataclass
 class VideoInfo:
@@ -64,7 +61,7 @@ def load_video_info(ffmpeg_path: Path, source: str) -> VideoInfo:
         raise IOError(f'❌ Failed to get video info: {str(e)} ')
 
 
-def process_video(ffmpeg_path: Path, config: ProcessConfig) -> subprocess.Popen:
+def process_video(ffmpeg_path: Path, config) -> subprocess.Popen:
     # Build output path
     output_path = Path(config.source).with_stem(f"{Path(config.source).stem}_FFMPEG_EDITED.mp4")
     
@@ -140,7 +137,7 @@ def monitor_table(frame: str, fps: str, timestamp: str, speed: str) -> Table:
         
     return table
 
-def crop_detect(ffmpeg_path: Path, config: ProcessConfig) -> subprocess.Popen:
+def crop_detect(ffmpeg_path: Path, config) -> subprocess.Popen:
     cmd = [
         str(ffmpeg_path),
         "-i", config.source,
@@ -173,7 +170,7 @@ def crop_result(process: subprocess.Popen) -> tuple[str, str, str, str]:
 
             return (width, height, x, y)
         
-def crop_video(ffmpeg_path: Path, config: ProcessConfig, crop_area: tuple[str, str, str, str]) -> subprocess.Popen:
+def crop_video(ffmpeg_path: Path, config, crop_area: tuple[str, str, str, str]) -> subprocess.Popen:
     # Build output path
     output_path = Path(config.source).with_stem(f"{Path(config.source).stem}_FFMPEG_CROPPED.mp4")
     width, height, x, y = crop_area
