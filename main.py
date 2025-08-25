@@ -10,10 +10,10 @@ from modules.ffmpeg_processing import (process_video,
 def main(page: ft.Page):
     # Page configuration
     page.title = "Simple File Picker"
-    page.window.width = 1300
+    page.window.width = 600
     page.window.height = 800
     page.padding = 0
-    page.bgcolor = ft.Colors.GREY_700
+    page.bgcolor = ft.Colors.GREY_900
     page.theme_mode = ft.ThemeMode.DARK
 
     # Theme configuration
@@ -49,7 +49,7 @@ def main(page: ft.Page):
     )
 
     result_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
-    video_size_text = ft.Text("Width: ", size=14, weight=ft.FontWeight.BOLD)
+    video_size_text = ft.Text("Size: ", size=14, weight=ft.FontWeight.BOLD)
     video_frame_rate_text = ft.Text("Frame Rate: ", size=14, weight=ft.FontWeight.BOLD)
     video_total_frames_text = ft.Text("Total Frames: ", size=14, weight=ft.FontWeight.BOLD)
 
@@ -203,25 +203,27 @@ def main(page: ft.Page):
     duplicate_files_view = ft.Container(
         content=ft.Column([
             ft.Container(
-                content=selected_file_label,
-                margin=ft.margin.only(bottom=20)
-            ),
-            selected_file_button,
-            ft.Container(
-                content=selected_file_text,
-                margin=ft.margin.only(top=10, bottom=10)
-            ),
-            ft.Container(
-                content=video_size_text,
-                margin=ft.margin.only(top=10, bottom=10)
+                content=ft.Column([
+                    selected_file_label,
+                    selected_file_button]),
+                # width=400,
+                padding=10,
+                bgcolor=ft.Colors.GREY_800,
+                border_radius=10,
+                expand=True,
             ),
             ft.Container(
-                content=video_frame_rate_text,
-                margin=ft.margin.only(top=10, bottom=10)
-            ),
-            ft.Container(
-                content=video_total_frames_text,
-                margin=ft.margin.only(top=10, bottom=10)
+                content=ft.Column([
+                    selected_file_text,
+                    video_size_text,
+                    video_frame_rate_text,
+                    video_total_frames_text
+                    ]),
+                # width=400,
+                padding=10,
+                bgcolor=ft.Colors.GREY_800,
+                border_radius=10,
+                expand=True,
             ),
             ft.Row([
                 bitrate_input,
@@ -242,7 +244,7 @@ def main(page: ft.Page):
                 margin=ft.margin.only(top=10, bottom=10)
             )
         ]),
-        padding=30,
+        padding=10,
         expand=True
     )
 
