@@ -154,9 +154,10 @@ def main(page: ft.Page):
 
         # Final message
         if process.returncode == 0:
-            step_message(next(step_count), 'Video processed successfully! ✅')
+            result_text.value = 'Video processed successfully! ✅'
         else:
-            step_message(next(step_count), "Error processing video: ❌")
+            result_text.value = "Error processing video: ❌"
+        result_text.update()
 
 
 
@@ -229,15 +230,12 @@ def main(page: ft.Page):
                         height_input,
                     ]),
                     fps_input,
+                    process_button
                     ]),
                 width=400,
                 padding=10,
                 bgcolor=ft.Colors.GREY_800,
                 border_radius=10,
-            ),
-            ft.Container(
-                content=process_button,
-                margin=ft.margin.only(top=10, bottom=10)
             ),
             ft.Container(
                 content=result_text,
