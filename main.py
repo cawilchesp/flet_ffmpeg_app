@@ -10,7 +10,7 @@ from modules.ffmpeg_processing import (process_video,
 def main(page: ft.Page):
     # Page configuration
     page.title = "Simple File Picker"
-    page.window.width = 600
+    page.window.width = 420
     page.window.height = 800
     page.padding = 0
     page.bgcolor = ft.Colors.GREY_900
@@ -189,12 +189,6 @@ def main(page: ft.Page):
         
         return process
 
-
-
-
-
-
-
         
     file_picker = ft.FilePicker(on_result=handle_file_picker)
     page.overlay.append(file_picker)
@@ -206,11 +200,10 @@ def main(page: ft.Page):
                 content=ft.Column([
                     selected_file_label,
                     selected_file_button]),
-                # width=400,
+                width=400,
                 padding=10,
                 bgcolor=ft.Colors.GREY_800,
                 border_radius=10,
-                expand=True,
             ),
             ft.Container(
                 content=ft.Column([
@@ -219,22 +212,29 @@ def main(page: ft.Page):
                     video_frame_rate_text,
                     video_total_frames_text
                     ]),
-                # width=400,
+                width=400,
                 padding=10,
                 bgcolor=ft.Colors.GREY_800,
                 border_radius=10,
-                expand=True,
             ),
-            ft.Row([
-                bitrate_input,
-                unit_selector,
-            ]),
-            ft.Row([
-                width_input,
-                ft.Text("x", size=20, weight=ft.FontWeight.BOLD),
-                height_input,
-            ]),
-            fps_input,
+            ft.Container(
+                content=ft.Column([
+                    ft.Row([
+                        bitrate_input,
+                        unit_selector,
+                    ]),
+                    ft.Row([
+                        width_input,
+                        ft.Text("x", size=20, weight=ft.FontWeight.BOLD),
+                        height_input,
+                    ]),
+                    fps_input,
+                    ]),
+                width=400,
+                padding=10,
+                bgcolor=ft.Colors.GREY_800,
+                border_radius=10,
+            ),
             ft.Container(
                 content=process_button,
                 margin=ft.margin.only(top=10, bottom=10)
