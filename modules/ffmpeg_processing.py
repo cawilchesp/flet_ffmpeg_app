@@ -17,7 +17,7 @@ class VideoInfo:
         fps (str): The frames per second of the video.
         total_frames (str): The total number of frames in the video.
     """
-    source_name: str
+    source_path: str
     width: str
     height: str
     fps: str
@@ -51,7 +51,7 @@ def load_video_info(ffmpeg_path: Path, source: str) -> VideoInfo:
                 info[key.strip()] = value.strip()
         
         return VideoInfo(
-            source_name=Path(source).stem,
+            source_path=source,
             width=info.get('width', 'N/A'),
             height=info.get('height', 'N/A'),
             fps=eval(info.get('r_frame_rate', '0/1')),
