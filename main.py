@@ -1,13 +1,17 @@
 import flet as ft
 from pathlib import Path
-from modules.ffmpeg_processing import process_video, load_video_info
+import subprocess
+from modules.ffmpeg_processing import (process_video,
+                                       load_video_info,
+                                       monitor_process,
+                                       VideoInfo)
 
 
 def main(page: ft.Page):
     # Page configuration
     page.title = "Simple File Picker"
-    page.window.width = 800
-    page.window.height = 600
+    page.window.width = 1300
+    page.window.height = 800
     page.padding = 0
     page.bgcolor = ft.Colors.GREY_700
     page.theme_mode = ft.ThemeMode.DARK
@@ -26,6 +30,8 @@ def main(page: ft.Page):
 
     # Variables
     ffmpeg_path = Path("ffmpeg/bin/ffmpeg.exe")
+
+    video_info = VideoInfo("", "", 0, 0, 0)
 
     state = { "current_duplicates": [] }
 
@@ -46,12 +52,6 @@ def main(page: ft.Page):
     video_size_text = ft.Text("Width: ", size=14, weight=ft.FontWeight.BOLD)
     video_frame_rate_text = ft.Text("Frame Rate: ", size=14, weight=ft.FontWeight.BOLD)
     video_total_frames_text = ft.Text("Total Frames: ", size=14, weight=ft.FontWeight.BOLD)
-
-
-
-
-
-
 
     bitrate_input = ft.TextField(
         label="Bitrate value",
@@ -92,39 +92,38 @@ def main(page: ft.Page):
         disabled=True,
     )
 
+    fps_input = ft.TextField(
+        label="Frame rate value",
+        hint_text="Enter frame rate value",
+        keyboard_type=ft.KeyboardType.NUMBER,
+        max_length=3,
+        width=150,
+        disabled=True,
+    )
+
     process_button = ft.ElevatedButton(
         text="Process Video",
         icon=ft.Icons.PLAY_CIRCLE_FILLED,
         color=ft.Colors.WHITE,
         bgcolor=ft.Colors.RED_700,
         disabled=True,
-        on_click=lambda _: process_video()
-    )
-
-    duplicates_list = ft.ListView(
-        expand=True,
-        spacing=10,
-        height=200,
-        auto_scroll=True
-    )
-
-    delete_all_button = ft.ElevatedButton(
-        text="Delete All Duplicates",
-        icon=ft.Icons.DELETE_SWEEP,
-        color=ft.Colors.WHITE,
-        bgcolor=ft.Colors.RED_700,
-        visible=False,
-        on_click=lambda _: delete_all_duplicates()
+        on_click=lambda _: click_process_button()
     )
 
     def handle_file_picker(e: ft.FilePickerResultEvent):
         if e.files:
             # Get video information
-            video_info = load_video_info(
+            file_info = load_video_info(
                 ffmpeg_path=ffmpeg_path,
                 source=e.files[0].path )
+            
+            video_info.source_path = file_info.source_path
+            video_info.width = file_info.width
+            video_info.height = file_info.height
+            video_info.fps = file_info.fps
+            video_info.total_frames = file_info.total_frames
 
-            selected_file_text.value = f"Selected file: {video_info.source_name}"
+            selected_file_text.value = f"Selected file: {Path(video_info.source_path).name}"
             selected_file_text.update()
             video_size_text.value = f"Size: {video_info.width} X {video_info.height} px"
             video_size_text.update()
@@ -141,110 +140,47 @@ def main(page: ft.Page):
             width_input.update()
             height_input.disabled = False
             height_input.update()
+            fps_input.disabled = False
+            fps_input.update()
             process_button.disabled = False
             process_button.update()
-            
 
-    # def scan_directory(directory):
-    #     duplicates_list.controls.clear()
-    #     state["current_duplicates"] = find_duplicate_files(directory)
+    def click_process_button():
+        process = process_video()
+        monitor_process(process)
+        
+        # Wait for process to finish
+        process.wait()
 
-    #     if not state["current_duplicates"]:
-    #         result_text.value = "No duplicate files found."
-    #         result_text.color = ft.Colors.GREEN_200
-    #         delete_all_button.visible = False
-    #     else:
-    #         result_text.value = f"{len(state["current_duplicates"])} duplicate files found."
-    #         result_text.color = ft.Colors.ORANGE_200
-    #         delete_all_button.visible = True
-
-    #         for duplicated_file, original in state["current_duplicates"]:
-    #             duplicate_row = ft.Row([
-    #                 ft.Text(
-    #                     f"Duplicate: {duplicated_file}\nOriginal: {original}",
-    #                     size=12,
-    #                     color=ft.Colors.BLUE_200,
-    #                     expand=True
-    #                 ),
-    #                 ft.ElevatedButton(
-    #                     text="Delete",
-    #                     icon=ft.Icons.DELETE,
-    #                     color=ft.Colors.WHITE,
-    #                     bgcolor=ft.Colors.RED_700,
-    #                     on_click=lambda e, file_path=duplicated_file: delete_duplicate(file_path)
-    #                 )
-    #             ])
-    #             duplicates_list.controls.append(duplicate_row)
-    #     duplicates_list.update()
-    #     result_text.update()
-    #     delete_all_button.update()
-
-    # def delete_duplicate(file_path):
-    #     if delete_file(file_path):
-    #         result_text.value = f"Deleted: {file_path}"
-    #         result_text.color = ft.Colors.GREEN_200
-    #         for control in duplicates_list.controls:
-    #             if file_path in control.controls[0].value:
-    #                 duplicates_list.controls.remove(control)
-    #         state["current_duplicates"] = [(dup, orig) for dup, orig in state["current_duplicates"] if dup[0] != file_path]
-    #         if not state["current_duplicates"]:
-    #             delete_all_button.visible = False
-    #     else:
-    #         result_text.value = f"Failed to delete: {file_path}"
-    #         result_text.color = ft.Colors.RED_200
-    #     duplicates_list.update()
-    #     result_text.update()
-    #     delete_all_button.update()
+        # Final message
+        if process.returncode == 0:
+            step_message(next(step_count), 'Video processed successfully! ✅')
+        else:
+            step_message(next(step_count), "Error processing video: ❌")
 
 
-    # def delete_all_duplicates():
-    #     deleted_count = 0
-    #     failed_count = 0
-    #     for duplicated_file, _ in state["current_duplicates"]:
-    #         if delete_file(duplicated_file):
-    #             deleted_count += 1
-    #         else:
-    #             failed_count += 1
-
-    #     duplicates_list.controls.clear()
-    #     state["current_duplicates"] = []
-    #     delete_all_button.visible = False
-
-    #     if failed_count == 0:
-    #         result_text.value = f"Successfully deleted {deleted_count} duplicate files."
-    #         result_text.color = ft.Colors.GREEN_200
-    #     else:
-    #         result_text.value = f"Deleted {deleted_count} files, failed to delete {failed_count} files."
-    #         result_text.color = ft.Colors.RED_200
-
-    #     duplicates_list.update()
-    #     result_text.update()
-    #     delete_all_button.update()
 
     def process_video():
         # Build output path
-        output_path = Path(config.source).with_stem(f"{Path(config.source).stem}_FFMPEG_EDITED.mp4")
-        
+        output_path = Path(video_info.source_path).parent / f"{Path(video_info.source_path).stem}_FFMPEG_EDITED.mp4"
+
         # Build FFmpeg command
         cmd = [
             str(ffmpeg_path),
             "-hwaccel", "cuda",
             "-y",
             "-an",
-            "-i", config.source,
+            "-i", video_info.source_path,
             "-c:v", "h264_nvenc"
         ]
 
         # Video encoding options
-        options = {
-            "bitrate": ["-b:v", f"{config.bitrate}M"],
-            "resolution": ["-vf", f"scale={config.resolution}"],
-            "fps": ["-r", f"{config.fps}"]
-        }
-
-        for key, args in options.items():
-            if getattr(config, key):
-                cmd.extend(args)
+        if bitrate_input.value != "":
+            cmd.extend(["-b:v", f"{bitrate_input.value}M"])
+        if width_input.value != "" or height_input.value != "":
+            cmd.extend(["-vf", f"scale={width_input.value}:{height_input.value}"])
+        if fps_input.value != "":
+            cmd.extend(["-r", f"{fps_input.value}"])
 
         cmd.append(f"{output_path}")
         
@@ -296,6 +232,7 @@ def main(page: ft.Page):
                 ft.Text("x", size=20, weight=ft.FontWeight.BOLD),
                 height_input,
             ]),
+            fps_input,
             ft.Container(
                 content=process_button,
                 margin=ft.margin.only(top=10, bottom=10)
@@ -303,15 +240,7 @@ def main(page: ft.Page):
             ft.Container(
                 content=result_text,
                 margin=ft.margin.only(top=10, bottom=10)
-            ),
-            ft.Container(
-                content=duplicates_list,
-                border=ft.border.all(2, ft.Colors.GREY_600),
-                expand=True,
-                padding=20,
-                margin=ft.margin.only(top=10),
-                bgcolor=ft.Colors.GREY_800
-            ),
+            )
         ]),
         padding=30,
         expand=True
