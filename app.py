@@ -11,18 +11,32 @@ FFMPEG_PATH = Path("ffmpeg/bin/ffmpeg.exe")
 
 def create_ui_components():
     # Labels and Texts
-    selected_file_label = ft.Text("Select a video to process", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_200)
-    selected_file_text = ft.Text("No file selected", size=20, color=ft.Colors.BLUE_200)
-    target_label = ft.Text("Target Conversion", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_200)
+    selected_file_label = ft.Text("Select a video to process",
+        size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_200)
+    selected_file_text = ft.Text("No file selected",
+        size=20, color=ft.Colors.BLUE_200)
+    target_label = ft.Text("Target Conversion",
+        size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_200)
     result_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
-    video_size_text = ft.Text("Size: ", size=14, weight=ft.FontWeight.BOLD)
-    video_frame_rate_text = ft.Text("Frame Rate: ", size=14, weight=ft.FontWeight.BOLD)
-    video_total_frames_text = ft.Text("Total Frames: ", size=14, weight=ft.FontWeight.BOLD)
-    fps_options_text = ft.Text("Frame Rate Options", size=20, color=ft.Colors.BLUE_200)
+    video_size_text = ft.Text("Size: ", 
+        size=14, weight=ft.FontWeight.BOLD)
+    video_frame_rate_text = ft.Text("Frame Rate: ", 
+        size=14, weight=ft.FontWeight.BOLD)
+    video_total_frames_text = ft.Text("Total Frames: ", 
+        size=14, weight=ft.FontWeight.BOLD)
+    fps_options_text = ft.Text("Frame Rate Options", 
+        size=20, color=ft.Colors.BLUE_200)
 
     # Inputs
-    bitrate_input = ft.TextField(label="Bitrate value", hint_text="Enter a number from 1 to 999", keyboard_type=ft.KeyboardType.NUMBER, max_length=3, width=150, disabled=True)
-    unit_selector = ft.Dropdown(label="", width=120, options=[ft.dropdown.Option("Kbps"), ft.dropdown.Option("Mbps"), ft.dropdown.Option("Gbps")], value="Mbps", disabled=True)
+    bitrate_input = ft.TextField(label="Bitrate value", 
+        hint_text="Enter a number from 1 to 999", 
+        keyboard_type=ft.KeyboardType.NUMBER, max_length=3, width=150, disabled=True)
+    unit_selector = ft.Dropdown(label="", 
+        width=120, 
+        options=[ft.dropdown.Option("Kbps"), 
+            ft.dropdown.Option("Mbps"), 
+            ft.dropdown.Option("Gbps")], 
+        value="Mbps", disabled=True)
     width_input = ft.TextField(label="Width value", hint_text="Enter width value in pixels", keyboard_type=ft.KeyboardType.NUMBER, max_length=4, width=150, disabled=True)
     height_input = ft.TextField(label="Height value", hint_text="Enter height value in pixels", keyboard_type=ft.KeyboardType.NUMBER, max_length=4, width=150, disabled=True)
     fps_input = ft.TextField(label="Frame rate value", hint_text="Enter frame rate value", keyboard_type=ft.KeyboardType.NUMBER, max_length=3, width=150, disabled=True)
@@ -30,17 +44,21 @@ def create_ui_components():
     # Dropdowns
     interpolation_modes = ft.Dropdown(
         label="Motion interpolation mode", width=300,
-        options=[ft.dropdown.Option("Motion-Compensated"), ft.dropdown.Option("Duplicate"), ft.dropdown.Option("Blend")],
+        options=[ft.dropdown.Option("Motion-Compensated"),
+            ft.dropdown.Option("Duplicate"),
+            ft.dropdown.Option("Blend")],
         value="Motion-Compensated", disabled=False
     )
     compensation_modes = ft.Dropdown(
         label="Motion compensation mode", width=300,
-        options=[ft.dropdown.Option("Adaptive"), ft.dropdown.Option("Overlapped")],
+        options=[ft.dropdown.Option("Adaptive"),
+            ft.dropdown.Option("Overlapped")],
         value="Adaptive", disabled=False
     )
     estimation_algorithms = ft.Dropdown(
         label="Motion estimation algorithm", width=300,
-        options=[ft.dropdown.Option("Bidirectional"), ft.dropdown.Option("Bilateral")],
+        options=[ft.dropdown.Option("Bidirectional"),
+            ft.dropdown.Option("Bilateral")],
         value="Bidirectional", disabled=False
     )
 
