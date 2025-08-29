@@ -187,8 +187,9 @@ def build_ffmpeg_command(video_info, components):
         if float(components["fps_input"].value) > video_info.fps:
             interpolation_filter = f"minterpolate=fps={components['fps_input'].value}"
             interpolation_filter += f":{interpolations[components['interpolation_modes'].value]}"
-            interpolation_filter += f":{compensations[components['compensation_modes'].value]}"
-            interpolation_filter += f":{estimations[components['estimation_algorithms'].value]}"
+            if components['interpolation_modes'].value == "Motion-Compensated":
+                interpolation_filter += f":{compensations[components['compensation_modes'].value]}"
+                interpolation_filter += f":{estimations[components['estimation_algorithms'].value]}"
         else:
             interpolation_filter = f"fps={components['fps_input'].value}"
         video_filters.append(interpolation_filter)
@@ -206,6 +207,8 @@ def process_video(video_info, components):
     return process
 
 def click_process_button(video_info, components):
+    components["result_text"].value = ''
+    components["result_text"].update()
     process = process_video(video_info, components)
     monitor_process(process)
     process.wait()
