@@ -94,6 +94,15 @@ def create_ui_components():
         "process_button": process_button
     }
 
+def interpolation_mode_on_change(e, components):
+    if e.control.value == "Motion-Compensated":
+        components["compensation_modes"].disabled = False
+        components["estimation_algorithms"].disabled = False
+    else:
+        components["compensation_modes"].disabled = True
+        components["estimation_algorithms"].disabled = True
+
+
 def build_layout(components):
     return ft.Container(
         content=ft.Column([
@@ -224,6 +233,7 @@ def main(page: ft.Page):
     file_picker = ft.FilePicker(on_result=lambda e: handle_file_picker(e, video_info, components))
     page.overlay.append(file_picker)
 
+    components["interpolation_modes"].on_change = lambda e: interpolation_mode_on_change(e, components)
     components["selected_file_button"].on_click = lambda _: file_picker.pick_files(allow_multiple=False)
     components["process_button"].on_click = lambda _: click_process_button(video_info, components)
 
