@@ -97,10 +97,14 @@ def create_ui_components():
 def interpolation_mode_on_change(e, components):
     if e.control.value == "Motion-Compensated":
         components["compensation_modes"].disabled = False
+        components["compensation_modes"].update()
         components["estimation_algorithms"].disabled = False
+        components["estimation_algorithms"].update()
     else:
         components["compensation_modes"].disabled = True
+        components["compensation_modes"].update()
         components["estimation_algorithms"].disabled = True
+        components["estimation_algorithms"].update()
 
 
 def build_layout(components):
