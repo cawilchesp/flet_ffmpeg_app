@@ -1,3 +1,4 @@
+import re
 import flet as ft
 from pathlib import Path
 import subprocess
@@ -17,7 +18,6 @@ def create_ui_components():
         size=20, color=ft.Colors.BLUE_200)
     target_label = ft.Text("Target Conversion",
         size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_200)
-    result_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
     video_size_text = ft.Text("Size: ", 
         size=14, weight=ft.FontWeight.BOLD)
     video_frame_rate_text = ft.Text("Frame Rate: ", 
@@ -26,6 +26,21 @@ def create_ui_components():
         size=14, weight=ft.FontWeight.BOLD)
     fps_options_text = ft.Text("Frame Rate Options", 
         size=20, color=ft.Colors.BLUE_200)
+    
+    processing_title = ft.Text("Processing...", 
+        size=20, color=ft.Colors.BLUE_200)
+
+    process_frame_label = ft.Text("Frame", size=14, weight=ft.FontWeight.BOLD)
+    process_frame_rate_label = ft.Text("Frame Rate", size=14, weight=ft.FontWeight.BOLD)
+    process_video_time_label = ft.Text("Video Time", size=14, weight=ft.FontWeight.BOLD)
+    process_speed_label = ft.Text("Speed", size=14, weight=ft.FontWeight.BOLD)
+
+    process_frame_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
+    process_frame_rate_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
+    process_video_time_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
+    process_speed_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
+    
+    result_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
 
     # Inputs
     bitrate_input = ft.TextField(label="Bitrate value", 
@@ -78,7 +93,6 @@ def create_ui_components():
         "selected_file_text": selected_file_text,
         "selected_file_button": selected_file_button,
         "target_label": target_label,
-        "result_text": result_text,
         "video_size_text": video_size_text,
         "video_frame_rate_text": video_frame_rate_text,
         "video_total_frames_text": video_total_frames_text,
@@ -91,7 +105,17 @@ def create_ui_components():
         "interpolation_modes": interpolation_modes,
         "compensation_modes": compensation_modes,
         "estimation_algorithms": estimation_algorithms,
-        "process_button": process_button
+        "process_button": process_button,
+        "processing_title": processing_title,
+        "process_frame_label": process_frame_label,
+        "process_frame_rate_label": process_frame_rate_label,
+        "process_video_time_label": process_video_time_label,
+        "process_speed_label": process_speed_label,
+        "process_frame_text": process_frame_text,
+        "process_frame_rate_text": process_frame_rate_text,
+        "process_video_time_text": process_video_time_text,
+        "process_speed_text": process_speed_text,
+        "result_text": result_text,
     }
 
 def interpolation_mode_on_change(e, components):
@@ -115,7 +139,7 @@ def build_layout(components):
                     components["selected_file_label"],
                     components["selected_file_button"]
                 ]),
-                width=400, padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
+                width=580, padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
             ),
             ft.Container(
                 content=ft.Column([
@@ -124,7 +148,7 @@ def build_layout(components):
                     components["video_frame_rate_text"],
                     components["video_total_frames_text"]
                 ]),
-                width=400, padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
+                width=580, padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
             ),
             ft.Container(
                 content=ft.Column([
@@ -138,9 +162,33 @@ def build_layout(components):
                     components["estimation_algorithms"],
                     components["process_button"]
                 ]),
-                width=400, padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
+                width=580, padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
             ),
-            ft.Container(content=components["result_text"], margin=ft.margin.only(top=10, bottom=10))
+            ft.Container(
+                content=ft.Column([
+                    components["processing_title"],
+                    ft.DataTable(
+                        columns=[
+                            ft.DataColumn(components["process_frame_label"]),
+                            ft.DataColumn(components["process_frame_rate_label"]),
+                            ft.DataColumn(components["process_video_time_label"]),
+                            ft.DataColumn(components["process_speed_label"]),
+                        ],
+                        rows=[
+                            ft.DataRow(
+                                cells=[
+                                    ft.DataCell(components["process_frame_text"]),
+                                    ft.DataCell(components["process_frame_rate_text"]),
+                                    ft.DataCell(components["process_video_time_text"]),
+                                    ft.DataCell(components["process_speed_text"])
+                                ]
+                            )
+                        ],
+                    ),
+                    components["result_text"],
+                ]),
+                width=580, padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
+            ),
         ]),
         padding=10, expand=True
     )
@@ -210,7 +258,33 @@ def click_process_button(video_info, components):
     components["result_text"].value = ''
     components["result_text"].update()
     process = process_video(video_info, components)
-    monitor_process(process)
+
+    progress_pattern = re.compile(r"frame=\s*(\d+).*?fps=\s*([\d\.]+).*?time=\s*(\d+:\d+:\d+\.\d+).*?speed=\s*([\d\.]+)x")
+    
+    while True:
+        line = process.stderr.readline()
+        if not line:
+            break
+        line = line.strip()
+
+        # Show errors
+        if "Error" in line or "Invalid" in line or "failed" in line.lower():
+            print(f"[bold red]Error:[/bold red] {line}")
+
+        # Match progress line
+        match = progress_pattern.search(line)
+        if match:
+            frame, fps, timestamp, speed = match.groups()
+
+            components["process_frame_text"].value = frame
+            components["process_frame_text"].update()
+            components["process_frame_rate_text"].value = fps
+            components["process_frame_rate_text"].update()
+            components["process_video_time_text"].value = timestamp
+            components["process_video_time_text"].update()
+            components["process_speed_text"].value = speed
+            components["process_speed_text"].update()
+    
     process.wait()
     components["result_text"].value = 'Video processed successfully! ✅' if process.returncode == 0 else "Error processing video: ❌"
     components["result_text"].update()
@@ -218,8 +292,8 @@ def click_process_button(video_info, components):
 def main(page: ft.Page):
     # Page configuration
     page.title = "FFMPEG Video Converter"
-    page.window.width = 420
-    page.window.height = 800
+    page.window.width = 600
+    page.window.height = 1020
     page.padding = 0
     page.bgcolor = ft.Colors.GREY_900
     page.theme_mode = ft.ThemeMode.DARK
