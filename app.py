@@ -18,6 +18,7 @@ def create_ui_components():
     video_frame_rate_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
     video_total_frames_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
     video_bit_rate_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
+    video_duration_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
 
     target_label = ft.Text("Target Conversion",
         size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_200)
@@ -91,6 +92,7 @@ def create_ui_components():
         "video_frame_rate_text": video_frame_rate_text,
         "video_total_frames_text": video_total_frames_text,
         "video_bit_rate_text": video_bit_rate_text,
+        "video_duration_text": video_duration_text,
         "target_label": target_label,
         "bitrate_input": bitrate_input,
         "unit_selector": unit_selector,
@@ -173,6 +175,13 @@ def build_layout(components):
                         ft.DataCell(components["video_bit_rate_text"])
                     ]
                 ),
+                ft.DataRow(
+                    cells=[
+                        ft.DataCell(ft.Text("Duration", 
+                            size=14, weight=ft.FontWeight.BOLD)),
+                        ft.DataCell(components["video_duration_text"])
+                    ]
+                ),
             ],
         ),
         expand=True, padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
@@ -246,6 +255,9 @@ def handle_file_picker(e, video_info, components):
         video_info.fps = file_info.fps
         video_info.total_frames = file_info.total_frames
         video_info.bit_rate = file_info.bit_rate
+        video_info.duration = file_info.duration
+
+        print(type(video_info.width))
 
         components["selected_file_text"].value = f"{Path(video_info.source_path).name}"
         components["selected_file_text"].update()
@@ -257,6 +269,8 @@ def handle_file_picker(e, video_info, components):
         components["video_total_frames_text"].update()
         components["video_bit_rate_text"].value = f"{video_info.bit_rate}"
         components["video_bit_rate_text"].update()
+        components["video_duration_text"].value = f"{video_info.duration}"
+        components["video_duration_text"].update()
 
         for key in ["bitrate_input", "unit_selector", "width_input", "height_input", "fps_input", "process_button"]:
             components[key].disabled = False
@@ -355,7 +369,14 @@ def main(page: ft.Page):
         )
     )
 
-    video_info = VideoInfo("", "", "", "", "", "")
+    video_info = VideoInfo(
+        source_path=None, 
+        width=0, 
+        height=0, 
+        fps=0.0, 
+        total_frames=0, 
+        bit_rate="",
+        duration="")
     components = create_ui_components()
 
     file_picker = ft.FilePicker(on_result=lambda e: handle_file_picker(e, video_info, components))
