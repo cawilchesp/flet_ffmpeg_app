@@ -1,15 +1,11 @@
-import re
 import flet as ft
 from pathlib import Path
-import subprocess
 from modules.ffmpeg_processing import (
     VideoInfo,
     load_video_info,
     ffmpeg_process,
     monitor_process,
 )
-
-FFMPEG_PATH = Path("ffmpeg/bin/ffmpeg.exe")
 
 def create_ui_components():
     # Labels and Texts
@@ -248,7 +244,7 @@ def build_layout(components):
 
 def handle_file_picker(e, video_info, components):
     if e.files:
-        file_info = load_video_info(ffmpeg_path=FFMPEG_PATH, source=e.files[0].path)
+        file_info = load_video_info(source=e.files[0].path)
         video_info.source_path = file_info.source_path
         video_info.width = file_info.width
         video_info.height = file_info.height
@@ -278,32 +274,7 @@ def click_process_button(video_info, components):
     components["result_text"].value = ''
     components["result_text"].update()
     process = ffmpeg_process(video_info, components)
-    
-    progress_pattern = re.compile(r"frame=\s*(\d+).*?fps=\s*([\d\.]+).*?time=\s*(\d+:\d+:\d+\.\d+).*?speed=\s*([\d\.]+)x")
-    
-    while True:
-        line = process.stderr.readline()
-        if not line:
-            break
-        line = line.strip()
-
-        # Show errors
-        if "Error" in line or "Invalid" in line or "failed" in line.lower():
-            print(f"[bold red]Error:[/bold red] {line}")
-
-        # Match progress line
-        match = progress_pattern.search(line)
-        if match:
-            frame, fps, timestamp, speed = match.groups()
-
-            components["process_frame_text"].value = frame
-            components["process_frame_text"].update()
-            components["process_frame_rate_text"].value = fps
-            components["process_frame_rate_text"].update()
-            components["process_video_time_text"].value = timestamp
-            components["process_video_time_text"].update()
-            components["process_speed_text"].value = speed
-            components["process_speed_text"].update()
+    monitor_process(process=process, components=components)
     
     process.wait()
     components["result_text"].value = 'Video processed successfully! ✅' if process.returncode == 0 else "Error processing video: ❌"
