@@ -1,14 +1,17 @@
 import re
 import subprocess
 from pathlib import Path
-from dataclasses import dataclass
 from rich.live import Live
 from rich import print, box
 from rich.table import Table, Column
 
+from pydantic import BaseModel, FilePath
+from typing import Optional
 
-@dataclass
-class VideoInfo:
+from modules.utils import format_duration, format_bandwidth
+
+
+class VideoInfo(BaseModel):
     """ Class to hold video information.
     Attributes:
         source (str): The video source path or identifier.
@@ -17,15 +20,16 @@ class VideoInfo:
         fps (str): The frames per second of the video.
         total_frames (str): The total number of frames in the video.
     """
-    source_path: str
-    width: str
-    height: str
-    fps: str
-    total_frames: str
+    source_path: Optional[FilePath]
+    width: int
+    height: int
+    fps: float
+    total_frames: int
     bit_rate: str
+    duration: str
 
         
-def load_video_info(ffmpeg_path: Path, source: str) -> VideoInfo:
+def load_video_info(ffmpeg_path: FilePath, source: FilePath) -> VideoInfo:
     """ Load video information using ffprobe.
     Args:
         ffmpeg_path (Path): Path to the ffmpeg executable.
@@ -51,13 +55,16 @@ def load_video_info(ffmpeg_path: Path, source: str) -> VideoInfo:
                 key, value = line.split('=')
                 info[key.strip()] = value.strip()
         
+        video_bitrate = format_bandwidth(float(info.get('bit_rate', 0.0)))
+        video_duration = format_duration(float(info.get('duration', 0.0)))
         return VideoInfo(
             source_path=source,
-            width=info.get('width', 'N/A'),
-            height=info.get('height', 'N/A'),
-            fps=eval(info.get('r_frame_rate', '0/1')),
-            total_frames=info.get('nb_frames', 'N/A'),
-            bit_rate=info.get('bit_rate', 'N/A'),
+            width=info.get('width', 0),
+            height=info.get('height', 0),
+            fps=eval(info.get('r_frame_rate', 0.0)),
+            total_frames=info.get('nb_frames', 0),
+            bit_rate=video_bitrate,
+            duration=video_duration
         )
     except Exception as e:
         raise IOError(f'❌ Failed to get video info: {str(e)} ')
