@@ -79,8 +79,17 @@ def ffmpeg_process(video_info: VideoInfo, components: dict) -> subprocess.Popen:
         "-i", video_info.source_path, "-c:v", "h264_nvenc"
     ]
     video_filters = []
+
+    if components["unit_selector"].value == "Kbps":
+        bitrate_value = float(components['bitrate_input'].value) / 1000
+    elif components["unit_selector"].value == "Gbps":
+        bitrate_value = float(components['bitrate_input'].value) * 1000
+    else:
+        bitrate_value = int(components['bitrate_input'].value)
+    print(bitrate_value)
+    
     if components["bitrate_input"].value != "":
-        cmd.extend(["-b:v", f"{components['bitrate_input'].value}M"])
+        cmd.extend(["-b:v", f"{bitrate_value}M"])
     if components["width_input"].value != "" or components["height_input"].value != "":
         video_filters.append(f"scale={components['width_input'].value}:{components['height_input'].value}")
 
