@@ -22,6 +22,7 @@ class VideoInfo:
     height: str
     fps: str
     total_frames: str
+    bit_rate: str
 
         
 def load_video_info(ffmpeg_path: Path, source: str) -> VideoInfo:
@@ -39,7 +40,7 @@ def load_video_info(ffmpeg_path: Path, source: str) -> VideoInfo:
             str(ffmpeg_path.parent / "ffprobe"),
             "-v", "error",
             "-select_streams", "v:0",
-            "-show_entries", "stream=width,height,r_frame_rate,nb_frames,duration,codec_name",
+            "-show_entries", "stream=width,height,r_frame_rate,nb_frames,duration,codec_name,bit_rate",
             "-of", "default=noprint_wrappers=1",
             source
         ], capture_output=True, text=True, check=True)
@@ -55,7 +56,8 @@ def load_video_info(ffmpeg_path: Path, source: str) -> VideoInfo:
             width=info.get('width', 'N/A'),
             height=info.get('height', 'N/A'),
             fps=eval(info.get('r_frame_rate', '0/1')),
-            total_frames=info.get('nb_frames', 'N/A')
+            total_frames=info.get('nb_frames', 'N/A'),
+            bit_rate=info.get('bit_rate', 'N/A'),
         )
     except Exception as e:
         raise IOError(f'❌ Failed to get video info: {str(e)} ')
