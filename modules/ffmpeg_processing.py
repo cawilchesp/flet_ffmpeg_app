@@ -10,6 +10,7 @@ from typing import Optional
 
 from modules.utils import format_duration, format_bandwidth
 
+FFMPEG_PATH = Path("ffmpeg/bin/ffmpeg.exe")
 
 class VideoInfo(BaseModel):
     """ Class to hold video information.
@@ -57,6 +58,7 @@ def load_video_info(ffmpeg_path: FilePath, source: FilePath) -> VideoInfo:
         
         video_bitrate = format_bandwidth(float(info.get('bit_rate', 0.0)))
         video_duration = format_duration(float(info.get('duration', 0.0)))
+        
         return VideoInfo(
             source_path=source,
             width=info.get('width', 0),
@@ -70,36 +72,41 @@ def load_video_info(ffmpeg_path: FilePath, source: FilePath) -> VideoInfo:
         raise IOError(f'❌ Failed to get video info: {str(e)} ')
 
 
-def process_video(ffmpeg_path: Path, config) -> subprocess.Popen:
-    # Build output path
-    output_path = Path(config.source).with_stem(f"{Path(config.source).stem}_FFMPEG_EDITED.mp4")
-    
-    # Build FFmpeg command
+def ffmpeg_process(video_info: VideoInfo, components: dict) -> subprocess.Popen:
+    output_path = Path(video_info.source_path).parent / f"{Path(video_info.source_path).stem}_FFMPEG_EDITED.mp4"
     cmd = [
-        str(ffmpeg_path),
-        "-hwaccel", "cuda",
-        "-y",
-        "-an",
-        "-i", config.source,
-        "-c:v", "h264_nvenc"
+        str(FFMPEG_PATH), "-hwaccel", "cuda", "-y", "-an",
+        "-i", video_info.source_path, "-c:v", "h264_nvenc"
     ]
+    video_filters = []
+    if components["bitrate_input"].value != "":
+        cmd.extend(["-b:v", f"{components['bitrate_input'].value}M"])
+    if components["width_input"].value != "" or components["height_input"].value != "":
+        video_filters.append(f"scale={components['width_input'].value}:{components['height_input'].value}")
 
-    # Video encoding options
-    options = {
-        "bitrate": ["-b:v", f"{config.bitrate}M"],
-        "resolution": ["-vf", f"scale={config.resolution}"],
-        "fps": ["-r", f"{config.fps}"]
-    }
+    interpolations = {"Duplicate": "mi_mode=dup", "Blend": "mi_mode=blend", "Motion-Compensated": "mi_mode=mci"}
+    compensations = {"Adaptive": "mc_mode=aobmc", "Overlapped": "mc_mode=obmc"}
+    estimations = {"Bidirectional": "me_mode=bidir", "Bilateral": "me_mode=bilat"}
 
-    for key, args in options.items():
-        if getattr(config, key):
-            cmd.extend(args)
+    if components["fps_input"].value != "":
+        if float(components["fps_input"].value) > video_info.fps:
+            interpolation_filter = f"minterpolate=fps={components['fps_input'].value}"
+            interpolation_filter += f":{interpolations[components['interpolation_modes'].value]}"
+            if components['interpolation_modes'].value == "Motion-Compensated":
+                interpolation_filter += f":{compensations[components['compensation_modes'].value]}"
+                interpolation_filter += f":{estimations[components['estimation_algorithms'].value]}"
+        else:
+            interpolation_filter = f"fps={components['fps_input'].value}"
+        video_filters.append(interpolation_filter)
 
-    cmd.append(f"{output_path}")
-    
-    # Launch process
+    if video_filters:
+        cmd.extend(["-vf", f"{(',').join(video_filters)}"])
+    if components["fps_input"].value != "":
+        cmd.extend(["-r", f"{components['fps_input'].value}"])
+    cmd.append(str(output_path))
+
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    
+
     return process
 
 
