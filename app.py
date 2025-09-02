@@ -38,8 +38,8 @@ def create_ui_components():
 
     # Inputs
     bitrate_input = ft.TextField(label="Bitrate value", 
-        hint_text="Enter a number from 1 to 999", 
-        keyboard_type=ft.KeyboardType.NUMBER, max_length=3, width=150, disabled=True)
+        hint_text="Enter a number greater than 0", 
+        keyboard_type=ft.KeyboardType.NUMBER, max_length=5, width=150, disabled=True)
     unit_selector = ft.Dropdown(label="", 
         width=120, 
         options=[ft.dropdown.Option("Kbps"), 
