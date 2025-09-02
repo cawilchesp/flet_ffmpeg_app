@@ -30,7 +30,7 @@ class VideoInfo(BaseModel):
     duration: str
 
         
-def load_video_info(ffmpeg_path: FilePath, source: FilePath) -> VideoInfo:
+def load_video_info(source: FilePath) -> VideoInfo:
     """ Load video information using ffprobe.
     Args:
         ffmpeg_path (Path): Path to the ffmpeg executable.
@@ -42,7 +42,7 @@ def load_video_info(ffmpeg_path: FilePath, source: FilePath) -> VideoInfo:
     """
     try:
         result = subprocess.run([
-            str(ffmpeg_path.parent / "ffprobe"),
+            str(FFMPEG_PATH.parent / "ffprobe"),
             "-v", "error",
             "-select_streams", "v:0",
             "-show_entries", "stream=width,height,r_frame_rate,nb_frames,duration,codec_name,bit_rate",
@@ -104,54 +104,39 @@ def ffmpeg_process(video_info: VideoInfo, components: dict) -> subprocess.Popen:
     if components["fps_input"].value != "":
         cmd.extend(["-r", f"{components['fps_input'].value}"])
     cmd.append(str(output_path))
-
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     return process
 
 
-def monitor_process(process: subprocess.Popen) -> tuple[str, str, str, str]:
+def monitor_process(process: subprocess.Popen, components: dict) -> tuple[str, str, str, str]:
     """ Monitor the FFmpeg process and display progress."""
     progress_pattern = re.compile(r"frame=\s*(\d+).*?fps=\s*([\d\.]+).*?time=\s*(\d+:\d+:\d+\.\d+).*?speed=\s*([\d\.]+)x")
 
-    with Live(monitor_table("0","0.0","-","0.0"), refresh_per_second=4) as live:
-        while True:
-            line = process.stderr.readline()
-            if not line:
-                break
-            line = line.strip()
+    while True:
+        line = process.stderr.readline()
+        if not line:
+            break
+        line = line.strip()
 
-            # Show errors
-            if "Error" in line or "Invalid" in line or "failed" in line.lower():
-                print(f"[bold red]Error:[/bold red] {line}")
+        # Show errors
+        if "Error" in line or "Invalid" in line or "failed" in line.lower():
+            print(f"[bold red]Error:[/bold red] {line}")
 
-            # Match progress line
-            match = progress_pattern.search(line)
-            if match:
-                frame, fps, timestamp, speed = match.groups()
-                live.update(monitor_table(frame, fps, timestamp, speed))
+        # Match progress line
+        match = progress_pattern.search(line)
+        if match:
+            frame, fps, timestamp, speed = match.groups()
 
+            components["process_frame_text"].value = frame
+            components["process_frame_text"].update()
+            components["process_frame_rate_text"].value = fps
+            components["process_frame_rate_text"].update()
+            components["process_video_time_text"].value = timestamp
+            components["process_video_time_text"].update()
+            components["process_speed_text"].value = speed
+            components["process_speed_text"].update()
 
-def monitor_table(frame: str, fps: str, timestamp: str, speed: str) -> Table:
-    """Display video source information in a formatted table.
-    Args:
-        video_info (VideoInfo): Information about the video source.
-    """
-    table = Table(
-        Column("Frame", justify="left", style="white", no_wrap=True),
-        Column("Frame Rate", justify="left", style="white", no_wrap=True),
-        Column("Video Time", justify="left", style="white", no_wrap=True),
-        Column("Speed", justify="left", style="white", no_wrap=True),
-        title="Processing",
-        box=box.HORIZONTALS )
-
-    table.add_row(
-        f"{frame}",
-        f"{fps} FPS",
-        f"{timestamp}",
-        f"{speed}x")
-        
-    return table
 
 def crop_detect(ffmpeg_path: Path, config) -> subprocess.Popen:
     cmd = [
