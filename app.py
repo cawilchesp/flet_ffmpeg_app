@@ -12,21 +12,17 @@ FFMPEG_PATH = Path("ffmpeg/bin/ffmpeg.exe")
 
 def create_ui_components():
     # Labels and Texts
-    selected_file_label = ft.Text("Select a video to process",
-        size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_200)
-    selected_file_text = ft.Text("No file selected",
-        size=20, color=ft.Colors.BLUE_200)
+    selected_file_text = ft.Text("No file selected", 
+        size=14, color=ft.Colors.BLUE_200, weight=ft.FontWeight.BOLD)
+    video_size_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
+    video_frame_rate_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
+    video_total_frames_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
+    video_bit_rate_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
+
     target_label = ft.Text("Target Conversion",
         size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_200)
-    video_size_text = ft.Text("Size: ", 
-        size=14, weight=ft.FontWeight.BOLD)
-    video_frame_rate_text = ft.Text("Frame Rate: ", 
-        size=14, weight=ft.FontWeight.BOLD)
-    video_total_frames_text = ft.Text("Total Frames: ", 
-        size=14, weight=ft.FontWeight.BOLD)
     fps_options_text = ft.Text("Frame Rate Options", 
-        size=20, color=ft.Colors.BLUE_200)
-    
+        size=20, color=ft.Colors.BLUE_200)    
     processing_title = ft.Text("Processing...", 
         size=20, color=ft.Colors.BLUE_200)
 
@@ -89,13 +85,13 @@ def create_ui_components():
     )
 
     return {
-        "selected_file_label": selected_file_label,
-        "selected_file_text": selected_file_text,
         "selected_file_button": selected_file_button,
-        "target_label": target_label,
+        "selected_file_text": selected_file_text,
         "video_size_text": video_size_text,
         "video_frame_rate_text": video_frame_rate_text,
         "video_total_frames_text": video_total_frames_text,
+        "video_bit_rate_text": video_bit_rate_text,
+        "target_label": target_label,
         "bitrate_input": bitrate_input,
         "unit_selector": unit_selector,
         "width_input": width_input,
@@ -132,66 +128,114 @@ def interpolation_mode_on_change(e, components):
 
 
 def build_layout(components):
-    return ft.Container(
+    card_file = ft.Container(
         content=ft.Column([
-            ft.Container(
-                content=ft.Column([
-                    components["selected_file_label"],
-                    components["selected_file_button"]
-                ]),
-                width=580, padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
-            ),
-            ft.Container(
-                content=ft.Column([
-                    components["selected_file_text"],
-                    components["video_size_text"],
-                    components["video_frame_rate_text"],
-                    components["video_total_frames_text"]
-                ]),
-                width=580, padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
-            ),
-            ft.Container(
-                content=ft.Column([
-                    components["target_label"],
-                    ft.Row([components["bitrate_input"], components["unit_selector"]]),
-                    ft.Row([components["width_input"], ft.Text("x", size=20, weight=ft.FontWeight.BOLD), components["height_input"]]),
-                    components["fps_input"],
-                    components["fps_options_text"],
-                    components["interpolation_modes"],
-                    components["compensation_modes"],
-                    components["estimation_algorithms"],
-                    components["process_button"]
-                ]),
-                width=580, padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
-            ),
-            ft.Container(
-                content=ft.Column([
-                    components["processing_title"],
-                    ft.DataTable(
-                        columns=[
-                            ft.DataColumn(components["process_frame_label"]),
-                            ft.DataColumn(components["process_frame_rate_label"]),
-                            ft.DataColumn(components["process_video_time_label"]),
-                            ft.DataColumn(components["process_speed_label"]),
-                        ],
-                        rows=[
-                            ft.DataRow(
-                                cells=[
-                                    ft.DataCell(components["process_frame_text"]),
-                                    ft.DataCell(components["process_frame_rate_text"]),
-                                    ft.DataCell(components["process_video_time_text"]),
-                                    ft.DataCell(components["process_speed_text"])
-                                ]
-                            )
-                        ],
-                    ),
-                    components["result_text"],
-                ]),
-                width=580, padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
-            ),
-        ]),
-        padding=10, expand=True
+            ft.Text("Select a video to process", size=20, 
+                weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_200),
+            components["selected_file_button"]
+        ]), expand=True,
+        padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10
     )
+
+    card_info = ft.Container(
+        content=ft.DataTable(
+            columns=[
+                ft.DataColumn(ft.Text("Selected File", 
+                    size=14, color=ft.Colors.BLUE_200, weight=ft.FontWeight.BOLD)),
+                ft.DataColumn(components["selected_file_text"])
+            ],
+            rows=[
+                ft.DataRow(
+                    cells=[
+                        ft.DataCell(ft.Text("Size", 
+                            size=14, weight=ft.FontWeight.BOLD)),
+                        ft.DataCell(components["video_size_text"])
+                    ]
+                ),
+                ft.DataRow(
+                    cells=[
+                        ft.DataCell(ft.Text("Frame Rate", 
+                            size=14, weight=ft.FontWeight.BOLD)),
+                        ft.DataCell(components["video_frame_rate_text"])
+                    ]
+                ),
+                ft.DataRow(
+                    cells=[
+                        ft.DataCell(ft.Text("Total Frames", 
+                            size=14, weight=ft.FontWeight.BOLD)),
+                        ft.DataCell(components["video_total_frames_text"])
+                    ]
+                ),
+                ft.DataRow(
+                    cells=[
+                        ft.DataCell(ft.Text("Bit Rate", 
+                            size=14, weight=ft.FontWeight.BOLD)),
+                        ft.DataCell(components["video_bit_rate_text"])
+                    ]
+                ),
+            ],
+        ),
+        expand=True, padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
+    )
+
+    card_target = ft.Container(
+        content=ft.Column([
+            components["target_label"],
+            ft.Row([components["bitrate_input"], components["unit_selector"]]),
+            ft.Row([components["width_input"], ft.Text("x", size=20, weight=ft.FontWeight.BOLD), components["height_input"]]),
+            components["fps_input"],
+            components["fps_options_text"],
+            components["interpolation_modes"],
+            components["compensation_modes"],
+            components["estimation_algorithms"],
+            components["process_button"]
+        ]),
+        padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
+    )
+
+    card_process = ft.Container(
+        content=ft.Column([
+            components["processing_title"],
+            ft.DataTable(
+                columns=[
+                    ft.DataColumn(components["process_frame_label"]),
+                    ft.DataColumn(components["process_frame_rate_label"]),
+                    ft.DataColumn(components["process_video_time_label"]),
+                    ft.DataColumn(components["process_speed_label"]),
+                ],
+                rows=[
+                    ft.DataRow(
+                        cells=[
+                            ft.DataCell(components["process_frame_text"]),
+                            ft.DataCell(components["process_frame_rate_text"]),
+                            ft.DataCell(components["process_video_time_text"]),
+                            ft.DataCell(components["process_speed_text"])
+                        ]
+                    )
+                ],
+            ),
+            components["result_text"],
+        ]),
+        padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
+    )
+
+    return ft.Container(
+        content=ft.Row([
+            ft.Container(
+                content=ft.Column([
+                    card_file,
+                    card_info
+                ]), expand=True
+            ),
+            ft.Container(
+                content=ft.Column([
+                    card_target,
+                    card_process
+                ]), expand=True
+            )
+        ]), padding=10, expand=True
+    )
+  
 
 def handle_file_picker(e, video_info, components):
     if e.files:
@@ -201,15 +245,18 @@ def handle_file_picker(e, video_info, components):
         video_info.height = file_info.height
         video_info.fps = file_info.fps
         video_info.total_frames = file_info.total_frames
+        video_info.bit_rate = file_info.bit_rate
 
-        components["selected_file_text"].value = f"Selected file: {Path(video_info.source_path).name}"
+        components["selected_file_text"].value = f"{Path(video_info.source_path).name}"
         components["selected_file_text"].update()
-        components["video_size_text"].value = f"Size: {video_info.width} X {video_info.height} px"
+        components["video_size_text"].value = f"{video_info.width} X {video_info.height} px"
         components["video_size_text"].update()
-        components["video_frame_rate_text"].value = f"Frame Rate: {video_info.fps} fps"
+        components["video_frame_rate_text"].value = f"{video_info.fps} fps"
         components["video_frame_rate_text"].update()
-        components["video_total_frames_text"].value = f"Total Frames: {video_info.total_frames}"
+        components["video_total_frames_text"].value = f"{video_info.total_frames}"
         components["video_total_frames_text"].update()
+        components["video_bit_rate_text"].value = f"{video_info.bit_rate}"
+        components["video_bit_rate_text"].update()
 
         for key in ["bitrate_input", "unit_selector", "width_input", "height_input", "fps_input", "process_button"]:
             components[key].disabled = False
@@ -292,8 +339,8 @@ def click_process_button(video_info, components):
 def main(page: ft.Page):
     # Page configuration
     page.title = "FFMPEG Video Converter"
-    page.window.width = 600
-    page.window.height = 1020
+    page.window.width = 1210
+    page.window.height = 770
     page.padding = 0
     page.bgcolor = ft.Colors.GREY_900
     page.theme_mode = ft.ThemeMode.DARK
@@ -308,14 +355,14 @@ def main(page: ft.Page):
         )
     )
 
-    video_info = VideoInfo("", "", 0, 0, 0)
+    video_info = VideoInfo("", "", "", "", "", "")
     components = create_ui_components()
 
     file_picker = ft.FilePicker(on_result=lambda e: handle_file_picker(e, video_info, components))
     page.overlay.append(file_picker)
 
-    components["interpolation_modes"].on_change = lambda e: interpolation_mode_on_change(e, components)
     components["selected_file_button"].on_click = lambda _: file_picker.pick_files(allow_multiple=False)
+    components["interpolation_modes"].on_change = lambda e: interpolation_mode_on_change(e, components)
     components["process_button"].on_click = lambda _: click_process_button(video_info, components)
 
     content_area = ft.Container(content=build_layout(components), expand=True)
