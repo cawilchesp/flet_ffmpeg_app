@@ -112,8 +112,8 @@ def build_layout(components):
             ft.Text("Select a video to process", size=20, 
                 weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_200),
             components["selected_file_button"]
-        ]), expand=True,
-        padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10
+        ]), padding=ft.padding.all(10),
+        bgcolor=ft.Colors.GREY_800, border_radius=10
     )
 
     card_info = ft.Container(
@@ -164,8 +164,8 @@ def build_layout(components):
                     ),
                 ],
             )
-        ]),
-        expand=True, padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
+        ]), padding=ft.padding.all(10), expand=True,
+        bgcolor=ft.Colors.GREY_800, border_radius=10,
     )
 
     card_target = ft.Container(
@@ -180,8 +180,8 @@ def build_layout(components):
             components["compensation_modes"],
             components["estimation_algorithms"],
             components["process_button"]
-        ]),
-        padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
+        ]), padding=ft.padding.all(10), expand=True,
+        bgcolor=ft.Colors.GREY_800, border_radius=10,
     )
 
     card_process = ft.Container(
@@ -207,8 +207,8 @@ def build_layout(components):
                 ],
             ),
             components["result_text"],
-        ]),
-        padding=10, bgcolor=ft.Colors.GREY_800, border_radius=10,
+        ]), padding=ft.padding.all(10),
+        bgcolor=ft.Colors.GREY_800, border_radius=10,
     )
 
     return ft.Container(
@@ -217,15 +217,15 @@ def build_layout(components):
                 content=ft.Column([
                     card_file,
                     card_info
-                ]), expand=True
+                ], horizontal_alignment=ft.CrossAxisAlignment.STRETCH), width=400
             ),
             ft.Container(
                 content=ft.Column([
                     card_target,
                     card_process
-                ]), expand=True
+                ], horizontal_alignment=ft.CrossAxisAlignment.STRETCH), expand=True
             )
-        ]), padding=10, expand=True
+        ]), expand=True, margin=10
     )
 
 def handle_file_picker(e, video_info, components):
@@ -269,7 +269,9 @@ def click_process_button(video_info, components):
 def main(page: ft.Page):
     # Page configuration
     page.title = "FFMPEG Video Converter"
-    page.window.width = 1210
+    page.window.min_width = 920
+    page.window.min_height = 770
+    page.window.width = 920
     page.window.height = 770
     page.padding = 0
     page.bgcolor = ft.Colors.GREY_900
@@ -302,8 +304,9 @@ def main(page: ft.Page):
     components["interpolation_modes"].on_change = lambda e: interpolation_mode_on_change(e, components)
     components["process_button"].on_click = lambda _: click_process_button(video_info, components)
 
-    content_area = ft.Container(content=build_layout(components), expand=True)
-    page.add(ft.Row([content_area], expand=True))
+    content_area = build_layout(components)
+    page.add(content_area)
+
 
 if __name__ == "__main__":
     ft.app(target=main)
