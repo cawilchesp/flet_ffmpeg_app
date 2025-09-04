@@ -60,6 +60,9 @@ def create_ui_components():
     )
 
     # Buttons
+    selected_file_button = ft.FilledButton(
+        text="Select Video", icon=ft.Icons.FOLDER_OPEN,
+    )
     process_button = ft.ElevatedButton(
         text="Process Video", icon=ft.Icons.PLAY_CIRCLE_FILLED,
         color=ft.Colors.WHITE,
@@ -67,11 +70,6 @@ def create_ui_components():
         disabled=True
     )
 
-    selected_file_button = ft.ElevatedButton(
-        text="Select Video", icon=ft.Icons.FOLDER_OPEN,
-        # color=ft.Colors.WHITE,
-        # bgcolor=ft.Colors.BLUE_900
-    )
 
     theme_button = ft.IconButton(
         icon=ft.Icons.DARK_MODE_OUTLINED,
