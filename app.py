@@ -9,20 +9,18 @@ from modules.ffmpeg_processing import (
 
 def create_ui_components():
     # Texts
-    selected_file_text = ft.Text("No file selected", size=14, weight=ft.FontWeight.BOLD, 
-        # color=ft.Colors.BLUE_200
-    )
-    video_size_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
-    video_frame_rate_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
-    video_total_frames_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
-    video_bit_rate_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
-    video_duration_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
+    selected_file_text = ft.Text("No file selected", style="label_medium")
+    video_size_text = ft.Text("", style="label_medium")
+    video_frame_rate_text = ft.Text("", style="label_medium")
+    video_total_frames_text = ft.Text("", style="label_medium")
+    video_bit_rate_text = ft.Text("", style="label_medium")
+    video_duration_text = ft.Text("", style="label_medium")
 
-    process_frame_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
-    process_frame_rate_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
-    process_video_time_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
-    process_speed_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
-    result_text = ft.Text("", size=14, weight=ft.FontWeight.BOLD)
+    process_frame_text = ft.Text("", style="label_medium")
+    process_frame_rate_text = ft.Text("", style="label_medium")
+    process_video_time_text = ft.Text("", style="label_medium")
+    process_speed_text = ft.Text("", style="label_medium")
+    result_text = ft.Text("", style="label_medium")
 
     # Inputs
     bitrate_input = ft.TextField(label="Bitrate value", 
@@ -66,11 +64,8 @@ def create_ui_components():
     process_button = ft.ElevatedButton(
         text="Process Video", icon=ft.Icons.PLAY_CIRCLE_FILLED,
         color=ft.Colors.WHITE,
-        # bgcolor=ft.Colors.RED_700,
         disabled=True
     )
-
-
     theme_button = ft.IconButton(
         icon=ft.Icons.DARK_MODE_OUTLINED,
     )
@@ -123,15 +118,11 @@ def interpolation_mode_on_change(e, components):
         components["estimation_algorithms"].update()
 
 
-def build_layout(components, page):
-    current_theme = page.dark_theme if page.theme_mode == ft.ThemeMode.DARK else page.theme
-
+def build_layout(components):
     card_file = ft.Card(
         content=ft.Container(
             ft.Column([
-                ft.Text("Select a video to process", size=20, 
-                    weight=ft.FontWeight.BOLD,
-                ),
+                ft.Text("Select a video to process", style="title_large"),
                 components["selected_file_button"]
             ]),
             padding=ft.padding.all(10),
@@ -141,10 +132,7 @@ def build_layout(components, page):
     card_info = ft.Card(
         ft.Container(
             content=ft.Column([
-                ft.Text("Video Information", size=20, 
-                    weight=ft.FontWeight.BOLD,
-                    # color=ft.Colors.BLUE_200
-                    ),
+                ft.Text("Video Information", style="title_large"),
                 ft.DataTable(
                     columns=[
                         ft.DataColumn(ft.Text("Selected File", size=14, 
@@ -333,6 +321,11 @@ def main(page: ft.Page):
             on_secondary=ft.Colors.BLACK,
             on_surface=ft.Colors.BLACK,
             on_background=ft.Colors.BLACK,
+        ),
+        text_theme=ft.TextTheme(
+            title_large=ft.TextStyle(size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_GREY_900),
+            body_medium=ft.TextStyle(size=16, color=ft.Colors.GREY_800),
+            label_medium=ft.TextStyle(size=14, color=ft.Colors.GREY_600)
         )
     )
     page.dark_theme = ft.Theme(
@@ -348,6 +341,11 @@ def main(page: ft.Page):
             on_secondary=ft.Colors.WHITE,
             on_surface=ft.Colors.WHITE,
             on_background=ft.Colors.WHITE,
+        ),
+        text_theme=ft.TextTheme(
+            title_large=ft.TextStyle(size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.GREY_100),
+            body_medium=ft.TextStyle(size=16, color=ft.Colors.GREY_300),
+            label_medium=ft.TextStyle(size=14, color=ft.Colors.GREY_400)
         )
     )
 
@@ -369,7 +367,7 @@ def main(page: ft.Page):
     components["process_button"].on_click = lambda _: click_process_button(video_info, components)
     components["theme_button"].on_click=lambda _: toggle_theme(page, components)
 
-    content_area = build_layout(components, page)
+    content_area = build_layout(components)
     page.add(content_area)
 
 
