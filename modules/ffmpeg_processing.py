@@ -86,7 +86,6 @@ def ffmpeg_process(video_info: VideoInfo, components: dict) -> subprocess.Popen:
         bitrate_value = float(components['bitrate_input'].value) * 1000
     else:
         bitrate_value = int(components['bitrate_input'].value)
-    print(bitrate_value)
     
     if components["bitrate_input"].value != "":
         cmd.extend(["-b:v", f"{bitrate_value}M"])
