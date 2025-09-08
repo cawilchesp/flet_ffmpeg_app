@@ -61,9 +61,8 @@ def create_ui_components():
     selected_file_button = ft.FilledButton(
         text="Select Video", icon=ft.Icons.FOLDER_OPEN,
     )
-    process_button = ft.ElevatedButton(
+    process_button = ft.FilledButton(
         text="Process Video", icon=ft.Icons.PLAY_CIRCLE_FILLED,
-        color=ft.Colors.WHITE,
         disabled=True
     )
     theme_button = ft.IconButton(
@@ -121,7 +120,7 @@ def interpolation_mode_on_change(e, components):
 def build_layout(components):
     card_file = ft.Card(
         content=ft.Container(
-            ft.Column([
+            content=ft.Column([
                 ft.Text("Select a video to process", style="title_large"),
                 components["selected_file_button"]
             ]),
@@ -135,45 +134,37 @@ def build_layout(components):
                 ft.Text("Video Information", style="title_large"),
                 ft.DataTable(
                     columns=[
-                        ft.DataColumn(ft.Text("Selected File", size=14, 
-                            weight=ft.FontWeight.BOLD,
-                            # color=ft.Colors.BLUE_200
-                            )),
+                        ft.DataColumn(ft.Text("Selected File", style="label_medium")),
                         ft.DataColumn(components["selected_file_text"])
                     ],
                     rows=[
                         ft.DataRow(
                             cells=[
-                                ft.DataCell(ft.Text("Size", size=14, 
-                                    weight=ft.FontWeight.BOLD)),
+                                ft.DataCell(ft.Text("Size", style="label_medium")),
                                 ft.DataCell(components["video_size_text"])
                             ]
                         ),
                         ft.DataRow(
                             cells=[
-                                ft.DataCell(ft.Text("Frame Rate", size=14, 
-                                    weight=ft.FontWeight.BOLD)),
+                                ft.DataCell(ft.Text("Frame Rate", style="label_medium")),
                                 ft.DataCell(components["video_frame_rate_text"])
                             ]
                         ),
                         ft.DataRow(
                             cells=[
-                                ft.DataCell(ft.Text("Total Frames", size=14, 
-                                    weight=ft.FontWeight.BOLD)),
+                                ft.DataCell(ft.Text("Total Frames", style="label_medium")),
                                 ft.DataCell(components["video_total_frames_text"])
                             ]
                         ),
                         ft.DataRow(
                             cells=[
-                                ft.DataCell(ft.Text("Bit Rate", size=14, 
-                                    weight=ft.FontWeight.BOLD)),
+                                ft.DataCell(ft.Text("Bit Rate", style="label_medium")),
                                 ft.DataCell(components["video_bit_rate_text"])
                             ]
                         ),
                         ft.DataRow(
                             cells=[
-                                ft.DataCell(ft.Text("Duration", size=14, 
-                                    weight=ft.FontWeight.BOLD)),
+                                ft.DataCell(ft.Text("Duration", style="label_medium")),
                                 ft.DataCell(components["video_duration_text"])
                             ]
                         ),
@@ -194,16 +185,11 @@ def build_layout(components):
     card_target = ft.Card(
         ft.Container(
             content=ft.Column([
-                ft.Text("Target Conversion", size=20, 
-                    weight=ft.FontWeight.BOLD,
-                    # color=ft.Colors.BLUE_200
-                    ),
+                ft.Text("Target Conversion", style="title_large"),
                 ft.Row([components["bitrate_input"], components["unit_selector"]]),
-                ft.Row([components["width_input"], ft.Text("x", size=20, weight=ft.FontWeight.BOLD), components["height_input"]]),
+                ft.Row([components["width_input"], ft.Text("x", style="label_medium"), components["height_input"]]),
                 components["fps_input"],
-                ft.Text("Frame Rate Options", size=20,
-                    # color=ft.Colors.BLUE_200
-                    ),
+                ft.Text("Frame Rate Options", style="label_medium"),
                 components["interpolation_modes"],
                 components["compensation_modes"],
                 components["estimation_algorithms"],
@@ -215,16 +201,13 @@ def build_layout(components):
     card_process = ft.Card(
         ft.Container(
             content=ft.Column([
-                ft.Text("Processing...", size=20, 
-                    weight=ft.FontWeight.BOLD,
-                    # color=ft.Colors.BLUE_200
-                    ),
+                ft.Text("Processing...", style="title_large"),
                 ft.DataTable(
                     columns=[
-                        ft.DataColumn(ft.Text("Frame", size=14, weight=ft.FontWeight.BOLD)),
-                        ft.DataColumn(ft.Text("Frame Rate", size=14, weight=ft.FontWeight.BOLD)),
-                        ft.DataColumn(ft.Text("Video Time", size=14, weight=ft.FontWeight.BOLD)),
-                        ft.DataColumn(ft.Text("Speed", size=14, weight=ft.FontWeight.BOLD)),
+                        ft.DataColumn(ft.Text("Frame", style="label_medium")),
+                        ft.DataColumn(ft.Text("Frame Rate", style="label_medium")),
+                        ft.DataColumn(ft.Text("Video Time", style="label_medium")),
+                        ft.DataColumn(ft.Text("Speed", style="label_medium")),
                     ],
                     rows=[
                         ft.DataRow(
@@ -310,7 +293,7 @@ def main(page: ft.Page):
 
     page.theme = ft.Theme(
         color_scheme_seed=ft.Colors.BLUE,
-        # visual_density=ft.VisualDensity.COMFORTABLE,
+        visual_density=ft.VisualDensity.COMFORTABLE,
         color_scheme=ft.ColorScheme(
             primary=ft.Colors.BLUE_400,
             secondary=ft.Colors.CYAN_400,
@@ -330,7 +313,7 @@ def main(page: ft.Page):
     )
     page.dark_theme = ft.Theme(
         color_scheme_seed=ft.Colors.BLUE,
-        # visual_density=ft.VisualDensity.COMFORTABLE,
+        visual_density=ft.VisualDensity.COMFORTABLE,
         color_scheme=ft.ColorScheme(
             primary=ft.Colors.BLUE_200,
             secondary=ft.Colors.CYAN_200,
@@ -343,7 +326,7 @@ def main(page: ft.Page):
             on_background=ft.Colors.WHITE,
         ),
         text_theme=ft.TextTheme(
-            title_large=ft.TextStyle(size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.GREY_100),
+            title_large=ft.TextStyle(size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_100),
             body_medium=ft.TextStyle(size=16, color=ft.Colors.GREY_300),
             label_medium=ft.TextStyle(size=14, color=ft.Colors.GREY_400)
         )
