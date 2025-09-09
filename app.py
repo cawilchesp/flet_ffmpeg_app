@@ -242,31 +242,6 @@ def build_conversion_layout(components):
         expand=True,
     )
 
-
-def build_gif_layout(components):
-    return
-
-
-def build_rail_layout():
-    return ft.NavigationRail(
-        selected_index=0,
-        label_type=ft.NavigationRailLabelType.ALL,
-        destinations=[
-            ft.NavigationRailDestination(
-                icon=ft.Icons.HOME,
-                selected_icon=ft.Icons.HOME_OUTLINED,
-                label="Conversion",
-            ),
-            ft.NavigationRailDestination(
-                icon=ft.Icons.SETTINGS,
-                selected_icon=ft.Icons.SETTINGS_OUTLINED,
-                label="GIF",
-            ),
-        ],
-        bgcolor=ft.Colors.GREY_900,
-    )
-
-
 def handle_file_picker(e, video_info, components):
     if e.files:
         file_info = load_video_info(source=e.files[0].path)
@@ -401,12 +376,7 @@ def main(page: ft.Page):
     )
     components = create_ui_components()
     conversion_area = build_conversion_layout(components)
-    rail = build_rail_layout()
-    content_area = ft.Container(
-        content=conversion_area,
-        expand=True
-    )
-
+    
     file_picker = ft.FilePicker(
         on_result=lambda e: handle_file_picker(e, video_info, components)
     )
@@ -424,10 +394,8 @@ def main(page: ft.Page):
     components["theme_button"].on_click = lambda _: toggle_theme(
         page, components
     )
-    rail.on_change = lambda e:change_view(e, content_area, conversion_area)
 
-
-    page.add(ft.Row([rail, content_area], expand=True))
+    page.add(conversion_area)
 
 
 if __name__ == "__main__":
