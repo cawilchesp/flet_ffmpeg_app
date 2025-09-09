@@ -85,14 +85,20 @@ def create_ui_components():
     compensation_modes = ft.Dropdown(
         label="Motion compensation mode",
         width=300,
-        options=[ft.dropdown.Option("Adaptive"), ft.dropdown.Option("Overlapped")],
+        options=[
+            ft.dropdown.Option("Adaptive"),
+            ft.dropdown.Option("Overlapped"),
+        ],
         value="Adaptive",
         disabled=False,
     )
     estimation_algorithms = ft.Dropdown(
         label="Motion estimation algorithm",
         width=300,
-        options=[ft.dropdown.Option("Bidirectional"), ft.dropdown.Option("Bilateral")],
+        options=[
+            ft.dropdown.Option("Bidirectional"),
+            ft.dropdown.Option("Bilateral"),
+        ],
         value="Bidirectional",
         disabled=False,
     )
@@ -186,40 +192,58 @@ def build_conversion_layout(components):
                         rows=[
                             ft.DataRow(
                                 cells=[
-                                    ft.DataCell(ft.Text("Size", style="label_medium")),
+                                    ft.DataCell(
+                                        ft.Text("Size", style="label_medium")
+                                    ),
                                     ft.DataCell(components["video_size_text"]),
                                 ]
                             ),
                             ft.DataRow(
                                 cells=[
                                     ft.DataCell(
-                                        ft.Text("Frame Rate", style="label_medium")
+                                        ft.Text(
+                                            "Frame Rate", style="label_medium"
+                                        )
                                     ),
-                                    ft.DataCell(components["video_frame_rate_text"]),
+                                    ft.DataCell(
+                                        components["video_frame_rate_text"]
+                                    ),
                                 ]
                             ),
                             ft.DataRow(
                                 cells=[
                                     ft.DataCell(
-                                        ft.Text("Total Frames", style="label_medium")
+                                        ft.Text(
+                                            "Total Frames", style="label_medium"
+                                        )
                                     ),
-                                    ft.DataCell(components["video_total_frames_text"]),
+                                    ft.DataCell(
+                                        components["video_total_frames_text"]
+                                    ),
                                 ]
                             ),
                             ft.DataRow(
                                 cells=[
                                     ft.DataCell(
-                                        ft.Text("Bit Rate", style="label_medium")
+                                        ft.Text(
+                                            "Bit Rate", style="label_medium"
+                                        )
                                     ),
-                                    ft.DataCell(components["video_bit_rate_text"]),
+                                    ft.DataCell(
+                                        components["video_bit_rate_text"]
+                                    ),
                                 ]
                             ),
                             ft.DataRow(
                                 cells=[
                                     ft.DataCell(
-                                        ft.Text("Duration", style="label_medium")
+                                        ft.Text(
+                                            "Duration", style="label_medium"
+                                        )
                                     ),
-                                    ft.DataCell(components["video_duration_text"]),
+                                    ft.DataCell(
+                                        components["video_duration_text"]
+                                    ),
                                 ]
                             ),
                         ],
@@ -247,7 +271,12 @@ def build_conversion_layout(components):
             content=ft.Column(
                 [
                     ft.Text("Target Conversion", style="title_large"),
-                    ft.Row([components["bitrate_input"], components["unit_selector"]]),
+                    ft.Row(
+                        [
+                            components["bitrate_input"],
+                            components["unit_selector"],
+                        ]
+                    ),
                     ft.Row(
                         [
                             components["width_input"],
@@ -275,18 +304,34 @@ def build_conversion_layout(components):
                     ft.Text("Processing...", style="title_large"),
                     ft.DataTable(
                         columns=[
-                            ft.DataColumn(ft.Text("Frame", style="label_medium")),
-                            ft.DataColumn(ft.Text("Frame Rate", style="label_medium")),
-                            ft.DataColumn(ft.Text("Video Time", style="label_medium")),
-                            ft.DataColumn(ft.Text("Speed", style="label_medium")),
+                            ft.DataColumn(
+                                ft.Text("Frame", style="label_medium")
+                            ),
+                            ft.DataColumn(
+                                ft.Text("Frame Rate", style="label_medium")
+                            ),
+                            ft.DataColumn(
+                                ft.Text("Video Time", style="label_medium")
+                            ),
+                            ft.DataColumn(
+                                ft.Text("Speed", style="label_medium")
+                            ),
                         ],
                         rows=[
                             ft.DataRow(
                                 cells=[
-                                    ft.DataCell(components["process_frame_text"]),
-                                    ft.DataCell(components["process_frame_rate_text"]),
-                                    ft.DataCell(components["process_video_time_text"]),
-                                    ft.DataCell(components["process_speed_text"]),
+                                    ft.DataCell(
+                                        components["process_frame_text"]
+                                    ),
+                                    ft.DataCell(
+                                        components["process_frame_rate_text"]
+                                    ),
+                                    ft.DataCell(
+                                        components["process_video_time_text"]
+                                    ),
+                                    ft.DataCell(
+                                        components["process_speed_text"]
+                                    ),
                                 ]
                             )
                         ],
@@ -357,7 +402,9 @@ def handle_file_picker(e, video_info, components):
         video_info.bit_rate = file_info.bit_rate
         video_info.duration = file_info.duration
 
-        components["selected_file_text"].value = f"{Path(video_info.source_path).name}"
+        components[
+            "selected_file_text"
+        ].value = f"{Path(video_info.source_path).name}"
         components["selected_file_text"].update()
         components[
             "video_size_text"
@@ -365,7 +412,9 @@ def handle_file_picker(e, video_info, components):
         components["video_size_text"].update()
         components["video_frame_rate_text"].value = f"{video_info.fps} fps"
         components["video_frame_rate_text"].update()
-        components["video_total_frames_text"].value = f"{video_info.total_frames}"
+        components[
+            "video_total_frames_text"
+        ].value = f"{video_info.total_frames}"
         components["video_total_frames_text"].update()
         components["video_bit_rate_text"].value = f"{video_info.bit_rate}"
         components["video_bit_rate_text"].update()
@@ -434,7 +483,9 @@ def main(page: ft.Page):
         ),
         text_theme=ft.TextTheme(
             title_large=ft.TextStyle(
-                size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_GREY_900
+                size=22,
+                weight=ft.FontWeight.BOLD,
+                color=ft.Colors.BLUE_GREY_900,
             ),
             body_medium=ft.TextStyle(size=16, color=ft.Colors.GREY_800),
             label_medium=ft.TextStyle(size=14, color=ft.Colors.GREY_600),
@@ -479,8 +530,8 @@ def main(page: ft.Page):
     )
     page.overlay.append(file_picker)
 
-    components["selected_file_button"].on_click = lambda _: file_picker.pick_files(
-        allow_multiple=False
+    components["selected_file_button"].on_click = (
+        lambda _: file_picker.pick_files(allow_multiple=False)
     )
     components["interpolation_modes"].on_change = (
         lambda e: interpolation_mode_on_change(e, components)
@@ -488,7 +539,9 @@ def main(page: ft.Page):
     components["process_button"].on_click = lambda _: click_process_button(
         video_info, components
     )
-    components["theme_button"].on_click = lambda _: toggle_theme(page, components)
+    components["theme_button"].on_click = lambda _: toggle_theme(
+        page, components
+    )
 
     content_area = build_conversion_layout(components)
 
