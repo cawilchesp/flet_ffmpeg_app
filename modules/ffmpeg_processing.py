@@ -108,7 +108,10 @@ def ffmpeg_process(video_info: VideoInfo, components: dict) -> subprocess.Popen:
 
     if components["bitrate_input"].value != "":
         cmd.extend(["-b:v", f"{bitrate_value}M"])
-    if components["width_input"].value != "" or components["height_input"].value != "":
+    if (
+        components["width_input"].value != ""
+        or components["height_input"].value != ""
+    ):
         video_filters.append(
             f"scale={components['width_input'].value}:{components['height_input'].value}"
         )
@@ -119,11 +122,16 @@ def ffmpeg_process(video_info: VideoInfo, components: dict) -> subprocess.Popen:
         "Motion-Compensated": "mi_mode=mci",
     }
     compensations = {"Adaptive": "mc_mode=aobmc", "Overlapped": "mc_mode=obmc"}
-    estimations = {"Bidirectional": "me_mode=bidir", "Bilateral": "me_mode=bilat"}
+    estimations = {
+        "Bidirectional": "me_mode=bidir",
+        "Bilateral": "me_mode=bilat",
+    }
 
     if components["fps_input"].value != "":
         if float(components["fps_input"].value) > video_info.fps:
-            interpolation_filter = f"minterpolate=fps={components['fps_input'].value}"
+            interpolation_filter = (
+                f"minterpolate=fps={components['fps_input'].value}"
+            )
             interpolation_filter += (
                 f":{interpolations[components['interpolation_modes'].value]}"
             )
