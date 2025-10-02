@@ -1,5 +1,6 @@
 import subprocess
 import re
+import time
 
 from ui.components import video_duration_value, progress_bar, status_text
 
@@ -10,7 +11,7 @@ class VideoConverter:
     def __init__(self):
         self.ffmpeg_process = None
 
-    def convert_video(self, cmd: str) -> subprocess.Popen:
+    def convert_video(self, cmd: str) -> None:
         self.ffmpeg_process = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
@@ -29,7 +30,10 @@ class VideoConverter:
         while True:
             line = self.ffmpeg_process.stderr.readline()
             if not line:
-                break
+                if self.ffmpeg_process.poll() is not None:
+                    break
+                time.sleep(0.1)
+                continue
             line = line.strip()
 
             # Show errors
@@ -44,7 +48,7 @@ class VideoConverter:
                 total_time = seconds(video_duration_value.value)
                 current_time = list_seconds(timestamp.replace(":", " ").split())
 
-                progress_bar.value = current_time / total_time
+                progress_bar.value = current_time / total_time if total_time > 0 else 0
                 progress_bar.update()
 
                 status_text.value = f"""
